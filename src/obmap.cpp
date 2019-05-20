@@ -48,6 +48,18 @@ void Obmap::setGridRange(double const & min_x, double const min_y, double const 
 	this->mWsPoint3.y(max_y);
 }
 
+void Obmap::addDynamicObRing(bgeo::DRing const & obring)
+{
+	for (auto &gridUnit : this->Tgrid)
+	{
+		auto _BWithIn = bg::within(gridUnit.second.pnt, obring);
+		if (_BWithIn)
+		{
+			gridUnit.second.type = bgeo::vertType::ObVert;
+		}
+	}
+}
+
 /////////////////////////////////////////////////////////////////////////
 ///
 ///

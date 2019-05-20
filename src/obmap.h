@@ -36,6 +36,7 @@ public:
 
 	void ReadRange(bgeo::DRing const & range) { m_Range = range; }
 
+	void addDynamicObRing(bgeo::DRing  const& obring);
 	//void addOb(ob::PolygonOb Ob);
 
 
@@ -118,6 +119,7 @@ private:
 	//每一个集结栅格的距离
 
 	double AgridStep = 0.5;
+	
 	//障碍物的信息
     std::vector<bgeo::DRing> m_vDRing;
 

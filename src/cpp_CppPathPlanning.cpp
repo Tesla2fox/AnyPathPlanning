@@ -159,8 +159,14 @@ JNIEXPORT jobjectArray JNICALL Java_cpp_CppPathPlanning_CenScoutMotionPlanning(J
 	
 	//vector<ac::RegionMM> res;
 	vector<vector<ac::Point>> Sres;
-	ac::STaskAllocation(Sres, taskAllocationRes, regionScale, regionCount, len_startY);
+	const int agentNum = len_startY;
+	ac::STaskAllocation(Sres, taskAllocationRes, regionScale, regionCount, agentNum);
 
+	//deg::conf_debug << "Point Debug" << endl;
+	//for (size_t i = 0; i < Sres.size(); i++)
+	//{
+	//	
+	//}
 	jclass initClass = env->FindClass("[D");
 
 
@@ -177,7 +183,7 @@ JNIEXPORT jobjectArray JNICALL Java_cpp_CppPathPlanning_CenScoutMotionPlanning(J
 	deg::conf_debug << " cut arae success" << endl;
 
 	//jclass initClass = env->FindClass("java/lang/Double");
-
+		
 	//cout << "bug si here" << endl;
 
 
@@ -220,7 +226,7 @@ JNIEXPORT jobjectArray JNICALL Java_cpp_CppPathPlanning_CenScoutMotionPlanning(J
 		main_splan.loadMap(ob::MainMap);
 
 		main_splan.setPosition(vx[i], vy[i]);
-
+		
 		main_splan.setRange(vxu, vyu);
 		main_splan.Plan();
 
@@ -325,35 +331,120 @@ JNIEXPORT jdoubleArray JNICALL Java_cpp_CppPathPlanning_ScoutMotionPlanning(JNIE
 	return output;
 }
 
-JNIEXPORT jdoubleArray JNICALL Java_cpp_CppPathPlanning_MotionPlanning(JNIEnv * env, jclass, jdouble start_x, jdouble start_y, jdouble target_x, jdouble target_y)
+JNIEXPORT jdoubleArray JNICALL Java_cpp_CppPathPlanning_MotionPlanning(JNIEnv * env, jclass, jdouble start_x, jdouble start_y, jdouble target_x, jdouble target_y, 
+	jobjectArray dynamicObstaclePntX, jobjectArray dynamicObstaclePntY, jdoubleArray naviPntX, jdoubleArray naviPntY)
 {
-	std::ofstream conf_debug("xx_debug_path.txt", std::ios::trunc);
-	conf_debug.precision(12);
+
+	jsize dynamicObstacleNum = env->GetArrayLength(dynamicObstaclePntX);
+
+	//No dynamic obstacles
+
+	auto AplanMap = ob::MainMap;
+	for (size_t i = 0; i < dynamicObstacleNum; i++)
+	{
+		vector<double> vreg_x, vreg_y;
+		vector<ac::Point> vPnt;
+		bgeo::DRing vObReg;
+		jdoubleArray ob_reg_x = jdoubleArray(env->GetObjectArrayElement(dynamicObstaclePntX, i));
+		jdoubleArray ob_reg_y = jdoubleArray(env->GetObjectArrayElement(dynamicObstaclePntY, i));
+
+		jdouble * jdouble_reg_xPtr = env->GetDoubleArrayElements(ob_reg_x, NULL);
+		int len_reg_x = env->GetArrayLength(ob_reg_x);
+
+		jdouble * jdouble_reg_yPtr = env->GetDoubleArrayElements(ob_reg_y, NULL);
+		int len_reg_y = env->GetArrayLength(ob_reg_y);
+
+		for (size_t j = 0; j < len_reg_x; j++)
+		{
+			vObReg.push_back(bgeo::DPoint(jdouble_reg_xPtr[j], jdouble_reg_xPtr[j]));
+		}
+		AplanMap.addDynamicObRing(vObReg);
+	}
 	pl::Aplan main_aplan;
-	main_aplan.loadMap(ob::MainMap);
+	main_aplan.loadMap(AplanMap);
 
-	main_aplan.getStartPnt(start_x, start_y);
-	main_aplan.getTargetPnt(target_x, target_y);
+	jdouble * jdouble_naviPtrX = env->GetDoubleArrayElements(naviPntX, NULL);
+	int navi_len_x = env->GetArrayLength(naviPntX);
 
-	main_aplan.AstarPlan();
+	jdouble * jdouble_naviPtrY = env->GetDoubleArrayElements(naviPntY, NULL);
+	int navi_len_y = env->GetArrayLength(naviPntY);
 
 	vector<double> vx;
 	vector<double> vy;
 
-	main_aplan.getPath(vx, vy);
+	jdoubleArray falseOutput = env->NewDoubleArray(1);
+	jboolean fasleIsCopy2 = JNI_FALSE;
+	jdouble* fasleDestArrayElems = env->GetDoubleArrayElements(falseOutput, &fasleIsCopy2);
 
 
-	conf_debug << "#######################local##########" << std::endl;
 
-	conf_debug << "PathNumLocal " << vx.size() << std::endl;
-
-	for (size_t w = 0; w < vx.size(); w++)
+	if (navi_len_x  == 0)
 	{
-		conf_debug << "PathCord.x  " << vx.at(w) << std::endl;
-		conf_debug << "PathCord.y  " << vy.at(w) << std::endl;
+		main_aplan.getStartPnt(start_x, start_y);
+		main_aplan.getTargetPnt(target_x, target_y);
+		main_aplan.AstarPlan();
+		if (main_aplan.failIndex < 0)
+		{
+			fasleDestArrayElems[0] = main_aplan.failIndex;
+			env->SetDoubleArrayRegion(falseOutput, 0, 1, fasleDestArrayElems);
+			return falseOutput;
+		}
+		main_aplan.getPath(vx, vy);
 	}
-	conf_debug << "############################GPS###########" << std::endl;
 
+	if (navi_len_x > 0)
+	{
+		vector<double> vHumanWay_x, vHumanWay_y;
+		for (size_t i = 0; i < navi_len_x; i++)
+		{
+			vHumanWay_x.push_back(jdouble_naviPtrX[i]);
+			vHumanWay_y.push_back(jdouble_naviPtrY[i]);
+		}
+
+		main_aplan.getStartPnt(start_x, start_y);
+		main_aplan.getTargetPnt(vHumanWay_x.front(), vHumanWay_y.front());
+		main_aplan.AstarPlan();
+		if (main_aplan.failIndex < 0)
+		{
+			fasleDestArrayElems[0] = main_aplan.failIndex;
+			env->SetDoubleArrayRegion(falseOutput, 0, 1, fasleDestArrayElems);
+			return falseOutput;
+		}
+		else{
+			main_aplan.getPath(vx, vy);
+		}
+		auto mid_human_wayPointSize = navi_len_x - 1;
+		for (size_t i = 0; i < mid_human_wayPointSize; i++)
+		{
+			main_aplan.getStartPnt(vHumanWay_x[i], vHumanWay_y[i]);
+			main_aplan.getTargetPnt(vHumanWay_x[i + 1], vHumanWay_y[i + 1]);
+			main_aplan.AstarPlan();
+			if (main_aplan.failIndex < 0)
+			{
+				fasleDestArrayElems[0] = main_aplan.failIndex;
+				env->SetDoubleArrayRegion(falseOutput, 0, 1, fasleDestArrayElems);
+				return falseOutput;
+			}
+			else
+			{
+				main_aplan.getPath(vx, vy);
+			}
+		}
+		main_aplan.getStartPnt(vHumanWay_x.back(), vHumanWay_y.back());
+		main_aplan.getTargetPnt(target_x, target_y);
+		main_aplan.AstarPlan();
+		if (main_aplan.failIndex < 0)
+		{
+			fasleDestArrayElems[0] = main_aplan.failIndex;
+			env->SetDoubleArrayRegion(falseOutput, 0, 1, fasleDestArrayElems);
+			return falseOutput;
+		}
+		else
+		{
+			main_aplan.getPath(vx, vy);
+		}
+
+	}
 	jdoubleArray output = env->NewDoubleArray(vx.size() * 2 + 1);
 	jboolean isCopy2 = JNI_FALSE;
 	jdouble* destArrayElems = env->GetDoubleArrayElements(output, &isCopy2);
@@ -368,7 +459,9 @@ JNIEXPORT jdoubleArray JNICALL Java_cpp_CppPathPlanning_MotionPlanning(JNIEnv * 
 	env->SetDoubleArrayRegion(output, 0, vx.size() * 2 + 1, destArrayElems);
 
 	return output;
+
 }
+
 
 
 

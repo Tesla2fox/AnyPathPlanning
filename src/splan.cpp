@@ -324,6 +324,25 @@ bool Splan::setRange(std::vector<double> & vx, std::vector<double> &vy)
     return false;
 }
 
+bool Splan::setExternRange(std::vector<std::vector<double>> & regs_x, std::vector<std::vector<double>> &regs_y)
+{
+	//this->m_Range.clear();
+	this->m_ExternRange.clear();	
+	for (size_t i = 0; i < regs_x.size(); i++)
+	{
+		for (size_t j = 0; j < regs_x[i].size(); j++)
+		{
+			bgeo::DPoint pntUnit(vx.at(i), vy.at(i));
+		}
+		//        qDebug()<<i<<" _x = "<<vx.at(i);
+		//        qDebug()<<i<<" _y = "<<vy.at(i);
+		this->m_ExternRange.push_back(pntUnit);
+		//this->m_Range.push_back(pntUnit);
+	}
+	externRangeEmpty = false;
+	return false;
+}
+
 bool Splan::setPosition(const double &x, const double &y)
 {
     this->m_startPnt.x(x);
@@ -460,7 +479,14 @@ size_t Splan::getDir(const bgeo::VertexDescriptor &cvd, const bgeo::VertexDescri
 }
 bool Splan::Inside(bgeo::DPoint const & pnt)
 {
-    return bg::within(pnt, this->m_Range);
+	if (this->externRangeEmpty)
+	{
+		return bg::within(pnt, this->m_Range);
+	}
+	else
+	{
+		return bg::within(pnt, this->m_Range) && bg::within(pnt, this->m_ExternRange);
+	}
 }
 bool Splan::loadMap(ob::Obmap & map)
 {

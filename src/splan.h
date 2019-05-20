@@ -30,6 +30,8 @@ public:
 
     bool setRange(std::vector<double> & vx, std::vector<double> &vy);
 
+	bool setExternRange(std::vector<std::vector<double>> & vx, std::vector<std::vector<double>> &vy);
+
     bool setPosition(double const &x ,double const &y);
 
     bool getPath(std::vector<double> &vx,std::vector<double> &vy);
@@ -38,6 +40,9 @@ public:
 
     bgeo::DRing m_Range;
 
+	bgeo::DRing m_ExternRange;
+	
+	bool externRangeEmpty = true;
 
     bool loadMap(ob::Obmap & map);
 

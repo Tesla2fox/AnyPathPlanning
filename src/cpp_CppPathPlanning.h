@@ -34,10 +34,10 @@ JNIEXPORT jdoubleArray JNICALL Java_cpp_CppPathPlanning_ScoutMotionPlanning
 /*
  * Class:     cpp_CppPathPlanning
  * Method:    MotionPlanning
- * Signature: (DDDD)[D
+ * Signature: (DDDD[[D[[D[D[D)[D
  */
 JNIEXPORT jdoubleArray JNICALL Java_cpp_CppPathPlanning_MotionPlanning
-  (JNIEnv *, jclass, jdouble, jdouble, jdouble, jdouble);
+  (JNIEnv *, jclass, jdouble, jdouble, jdouble, jdouble, jobjectArray, jobjectArray, jdoubleArray, jdoubleArray);
 
 #ifdef __cplusplus
 }

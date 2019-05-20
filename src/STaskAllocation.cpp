@@ -23,7 +23,10 @@ namespace areaCut {
 	}fnPointy;
 
 	bool  DebugBoolean = true;
-	int STaskAllocation(vector<vector<Point>>& res, const vector<size_t> AgentAllocationRes, const vector<vector<Point>> regionScale, const int Size_regionScale, const int AgentNum)
+
+	int STaskAllocation(vector<vector<Point>>& res, const vector<size_t> AgentAllocationRes, 
+		const vector<vector<Point>> regionScale, 
+		const int Size_regionScale, const int AgentNum)
 	{
 		std::ofstream conf_srh("xx_STaskAllocation.txt", std::ios::trunc);
 		conf_srh.precision(11);
@@ -81,7 +84,6 @@ namespace areaCut {
 		//for (size_t i = 0; i < ORegionSize; i++)
 		//{
 		//	std::vector<Point>  VregionPnt;
-
 		//	conf_srh << "RegionInID == " << i << std::endl;
 		//	conf_srh << "RegionInSize== " << regionScale[i].size << std::endl;
 
@@ -173,7 +175,6 @@ namespace areaCut {
 		}
 
 		//转化为输出形式
-
 		for (size_t i = 0; i < AgentNum; i++)
 		{
 			res.push_back(SVregion4.at(i)._m_Vregion);
