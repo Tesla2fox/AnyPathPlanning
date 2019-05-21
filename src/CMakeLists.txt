@@ -13,7 +13,10 @@ set(file_list
 	  tinyxmlerror.cpp tinyxmlparser.cpp
 	Aplan.h Aplan.cpp
 	bgeometry.h bgeometry.cpp
-    ssconfig.hpp 
+    #文件流的文件
+	ssconfig.hpp 
+	Gwrite.hpp Gwrite.cpp
+	
 	obmap.h obmap.cpp
 	Point.h Point.cpp
 	splan.h splan.cpp
@@ -34,9 +37,44 @@ set(file_list
 	#
 	STaskAllocation.h
 	STaskAllocation.cpp
-	#
-	
+	#	
+
 )
+
+#添加测试文件
+set(exe_file_list
+	  xml/tinystr.h
+	  xml/tinyxml.h
+	  tinyxml.cpp  
+	  tinystr.cpp
+	  tinyxmlerror.cpp tinyxmlparser.cpp
+	Aplan.h Aplan.cpp
+	bgeometry.h bgeometry.cpp
+    #文件流的文件
+	ssconfig.hpp 
+	Gwrite.hpp Gwrite.cpp
+
+	obmap.h obmap.cpp
+	Point.h Point.cpp
+	splan.h splan.cpp
+	stree.h stree.cpp
+	anylogicTestPathPlan.cpp
+	#
+	stadfxEx.h
+	stadfxEx.cpp
+	simple_svg.hpp
+	#ding's code	
+	dingTaskAllocation.h
+	dingTaskAllocation.cpp
+	taskLocation.h
+	computeArea.cpp
+	objectFunction.cpp
+	#
+	STaskAllocation.h
+	STaskAllocation.cpp
+	#
+)
+
 
 include_directories(../include)
 find_package(Boost 1.65.0)
@@ -61,6 +99,9 @@ message(${PROJECT_LIB_DIR})
 #生成DLL
 #add_executable(test_pathplan  ${PROJECT_LIB_DIR}/${file_list})
 add_library(test_pathplan  SHARED ${PROJECT_LIB_DIR}/${file_list})
+add_executable(test_exe_pathPlan ${PROJECT_LIB_DIR}/${exe_file_list})
+
+
 
 #链接外部DLL
 #target_link_libraries(libPathPlanning libGPS)

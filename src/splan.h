@@ -40,7 +40,7 @@ public:
 
     bgeo::DRing m_Range;
 
-	bgeo::DRing m_ExternRange;
+	std::vector<bgeo::DRing> m_ExternRange;
 	
 	bool externRangeEmpty = true;
 

@@ -1,5 +1,4 @@
-﻿
-#include <vector>
+﻿#include <vector>
 #include <iostream>
 #include "cpp_CppPathPlanning.h"
 #include "obmap.h"
@@ -9,6 +8,7 @@
 #include "dingTaskAllocation.h"
 #include "STaskAllocation.h"
 #include "stadfxEx.h"
+#include "Gwrite.hpp"
 
 using std::vector;
 using std::cout;
@@ -75,9 +75,10 @@ JNIEXPORT jint JNICALL Java_cpp_CppPathPlanning_MapUpdate(JNIEnv *env, jclass, j
 	{
 		vx.push_back(jdouble_xptr[i]);
 		vy.push_back(jdouble_yptr[i]);
-		deg::conf_debug << "index is " << i << "	x = " << jdouble_xptr[i]
-			<< "		y = " << jdouble_yptr[i] << endl;
 	}
+	writeDebug(deg::conf_debug, "x", vx);
+	writeDebug(deg::conf_debug, "y", vy);
+
 	deg::conf_debug << "ring" << endl;
 	ob::MainMap.addObRing(vx, vy);
 	return -100;
@@ -226,7 +227,7 @@ JNIEXPORT jobjectArray JNICALL Java_cpp_CppPathPlanning_CenScoutMotionPlanning(J
 		main_splan.loadMap(ob::MainMap);
 
 		main_splan.setPosition(vx[i], vy[i]);
-		
+//		main_splan.setExternRange(regs_x, regs_y);
 		main_splan.setRange(vxu, vyu);
 		main_splan.Plan();
 

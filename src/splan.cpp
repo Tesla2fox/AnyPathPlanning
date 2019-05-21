@@ -330,14 +330,15 @@ bool Splan::setExternRange(std::vector<std::vector<double>> & regs_x, std::vecto
 	this->m_ExternRange.clear();	
 	for (size_t i = 0; i < regs_x.size(); i++)
 	{
+		bgeo::DRing new_ring;
 		for (size_t j = 0; j < regs_x[i].size(); j++)
 		{
-			bgeo::DPoint pntUnit(vx.at(i), vy.at(i));
+			bgeo::DPoint pntUnit(regs_x[i][j], regs_y[i][j]);
+			new_ring.push_back(pntUnit);
+			deg::conf_debug << "pnt_x =  " << regs_x[i][j] << " pnt_y = " << regs_y[i][j] << std::endl;
 		}
-		//        qDebug()<<i<<" _x = "<<vx.at(i);
-		//        qDebug()<<i<<" _y = "<<vy.at(i);
-		this->m_ExternRange.push_back(pntUnit);
-		//this->m_Range.push_back(pntUnit);
+		deg::conf_debug << " " << std::endl;
+		this->m_ExternRange.push_back(new_ring);
 	}
 	externRangeEmpty = false;
 	return false;
@@ -485,7 +486,14 @@ bool Splan::Inside(bgeo::DPoint const & pnt)
 	}
 	else
 	{
-		return bg::within(pnt, this->m_Range) && bg::within(pnt, this->m_ExternRange);
+		for (auto &it : this->m_ExternRange)
+		{
+			if (!bg::within(pnt, it))
+			{
+				return false;
+			}
+		}
+		return bg::within(pnt, this->m_Range);
 	}
 }
 bool Splan::loadMap(ob::Obmap & map)
@@ -1645,16 +1653,11 @@ int Splan::findGreedInitVert(int const &i_md)
 		break;
 	}
 
-
-
-
-
     return -1;
 }
 
 int Splan::findLawnInitVert()
 {
-
     return 0;
 }
 

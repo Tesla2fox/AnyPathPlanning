@@ -96,6 +96,7 @@ public:
 
 	bool savePic();
 
+	size_t getObRingNum() const { return this->m_vDRing.size(); }
 private:
 
 	//初始化搜索地图的边
